@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>የሆቴል ሶፍትዌር ፕሮፖዛል እና ዋጋ ማስተካከያ (Proposal Editor)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 800: '#0f172a', 900: '#0b1120' },
+                        gold: { 500: '#d97706', 600: '#b45309' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Ethiopic', system-ui, -apple-system, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Printable Paper Setup */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 18mm 18mm 12mm 18mm;
+            margin: 0 auto 20px auto;
+            background: #ffffff;
+            color: #1e293b;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Editable highlight effect */
+        [contenteditable="true"] {
+            outline: 1px dashed transparent;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+            padding: 1px 3px;
+        }
+        
+        .edit-mode [contenteditable="true"]:hover {
+            outline: 1px dashed #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .edit-mode [contenteditable="true"]:focus {
+            outline: 2px solid #2563eb;
+            background-color: #ffffff;
+        }
+
+        /* Print Specific CSS */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page {
+                box-shadow: none !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                page-break-after: always;
+                break-after: page;
+            }
+            .page:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+            [contenteditable="true"] {
+                outline: none !important;
+                background: transparent !important;
+            }
+            .checkbox-custom {
+                appearance: none;
+                -webkit-appearance: none;
+                border: 1px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen edit-mode pb-12">
+
+    <!-- TOP CONTROL BAR / TOOLBAR (Hidden in Print) -->
+    <header class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-500 text-slate-900 p-2 rounded-lg font-bold">
+                    <i class="fa-solid fa-hotel"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-base sm:text-lg">የሆቴል ሶፍትዌር ፕሮፖዛል አዘጋጅ (Proposal Builder)</h1>
+                    <p class="text-xs text-slate-400">የሚፈልጉትን ጽሁፍ እና ዋጋ በቀጥታ በመጫን ማስተካከል ይችላሉ</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="addCustomModule()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-xs"></i> አዲስ ሞጁል ጨምር
+                </button>
+                <button onclick="calculateTotal()" class="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-500/30 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-xs"></i> ሂሳብ አስላ
+                </button>
+                <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-file-pdf"></i> ወደ PDF ቀይር / Print
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- FLOATING INFO TOAST -->
+    <div class="no-print max-w-6xl mx-auto my-4 px-4">
+        <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-300 flex items-center justify-between gap-3">
+            <span class="flex items-center gap-2">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                <strong>ምክር፡</strong> በሰነዱ ላይ ያለውን ማንኛውንም ጽሁፍ፣ ዋጋ ወይም አርእስት በመጫን በቀጥታ መቀየር ይችላሉ።
+            </span>
+            <span class="text-xs text-slate-400 bg-slate-900 px-2 py-1 rounded">A4 Format</span>
+        </div>
+    </div>
+
+    <!-- DOCUMENT PREVIEW CONTAINER -->
+    <main id="proposal-document" class="flex flex-col items-center">
+
+        <!-- ================= PAGE 1 ================= -->
+        <div class="page" id="page-1">
+            <!-- Content Wrapper -->
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <!-- Header Banner -->
+                    <div class="bg-slate-900 text-white p-6 rounded-lg flex justify-between items-center mb-6 border-b-4 border-amber-500">
+                        <div>
+                            <h1 contenteditable="true" class="text-xl font-bold text-amber-400 tracking-wide">የሆቴል ሶፍትዌር እና ዘመናዊ AI ቴክኖሎጂዎች ፕሮፖዛል</h1>
+                            <p contenteditable="true" class="text-xs text-slate-300 mt-1">Comprehensive Hotel Management & Smart AI Solutions Proposal</p>
+                        </div>
+                        <div class="text-right border-l border-slate-700 pl-4">
+                            <span contenteditable="true" class="text-xs text-amber-400 font-semibold block">ድርጅት / Company</span>
+                            <span contenteditable="true" id="vendor-name" class="text-sm font-bold">Great Softwares Technology and Software
+                            Solution</span>
+                        </div>
+                    </div>
+
+                    <!-- Meta Information Box -->
+                    <div class="grid grid-cols-2 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-lg text-xs mb-6">
+                        <div>
+                            <span class="text-slate-500 block">የተዘጋጀው ለ (Client):</span>
+                            <strong contenteditable="true" class="text-slate-900 text-sm">______________</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">ቀን (Date):</span>
+                            <strong contenteditable="true" class="text-slate-900 text-sm" id="current-date">__/__/ 20__ ዓ.ም</strong>
+                        </div>
+                         <div>
+                            <span class="text-slate-500 block"> Address( Location):</span>
+                            <strong contenteditable="true" class="text-slate-900 text-sm" id="current-date">______________________</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">የቀረበው በ (Prepared By):</span>
+                            <strong contenteditable="true" class="text-slate-900">Great Softwares Technology and Software solution</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">የሰነድ ቁጥር (Ref No):</span>
+                            <strong contenteditable="true" class="text-slate-900">HMS__________</strong>
+                        </div>
+                         <div>
+                            <span class="text-slate-500 block">Agent Id (AGN. No):</span>
+                            <strong contenteditable="true" class="text-slate-900">GSTSS__________</strong>
+                        </div>
+                    </div>
+
+                    <!-- Introduction Text -->
+                    <div class="mb-6">
+                        <h2 contenteditable="true" class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">1. መግቢያ (Introduction)</h2>
+                        <p contenteditable="true" class="text-xs text-slate-600 leading-relaxed">
+                            ይህ ፕሮፖዛል የሆቴልዎን ዕለታዊ አሰራር በዘመናዊ መንገድ ለማቃለል፣ የገቢ ቁጥጥርን ለማጠናከር እና የደንበኞችን እርካታ በላቀ ደረጃ ለማሳደግ የተዘጋጁ አጠቃላይ የሆቴል አስተዳደር ሶፍትዌሮች እና የ AI ቴክኖሎጂ አገልግሎቶችን ያካተተ ነው። ከዚህ በታች የተዘረዘሩትን ሞጁሎች በመመልከት ለሆቴልዎ የሚስማሙትን መርጠው መጠቀም ይችላሉ።
+                        </p>
+                    </div>
+
+                    <!-- Section: Core HMS Modules -->
+                    <div>
+                        <h2 contenteditable="true" class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">2. ዋና የሆቴል ሶፍትዌር አገልግሎቶች (Core Modules)</h2>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <!-- Card 1 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">1. የፊት ለፊት አስተዳደር (PMS)</h3>
+                                    <span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2 py-0.5 rounded">Core</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>የክፍል ምዝገባ እና ቦታ ማስያዝ (Booking)</li>
+                                    <li>የደንበኞች Check-in / Check-out ማድረግ</li>
+                                    <li>የክፍል ጽዳት እና ጥገና ቁጥጥር (Housekeeping)</li>
+                                    <li>የደንበኛ ሂሳብና ደረሰኝ (Folio & Billing)</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">2. የምግብና መጠጥ ማዘዣ (POS)</h3>
+                                    <span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2 py-0.5 rounded">Core</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>ለሬስቶራንት፣ ባር እና ካፌ የሚሆን ትእዛዝ መቀበያ</li>
+                                    <li>ትእዛዝ በቀጥታ ወደ ማእድ ቤት መላኪያ (KOT)</li>
+                                    <li>የክፍያ አፈጻጸም (ቴሌብር፣ ካርድ፣ ወደ ክፍል)</li>
+                                    <li>የጠረጴዛዎች ሁኔታ መከታተያ</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">3. የኦንላይን ቻናል አስተዳደር</h3>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2 py-0.5 rounded">Online</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>ከ Booking.com እና Airbnb ጋር ማያያዝ</li>
+                                    <li>ከሆቴሉ ድረ-ገጽ ላይ በቀጥታ ቦታ ማስያዝ</li>
+                                    <li>የክፍል ዋጋ አውቶማቲክ አስተዳደር</li>
+                                    <li>Overbooking የመከላከል ሥርዓት</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 4 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">4. የዕቃና ስቶር ቁጥጥር</h3>
+                                    <span class="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded">Store</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>የጥሬ ዕቃዎች እና የምግብ አቅርቦት ክምችት</li>
+                                    <li>የዕቃ ወጪ እና ገቢ መከታተያ (Stock Movement)</li>
+                                    <li>ዕቃዎች ሲያልቁ ማሳወቂያ መላክ</li>
+                                    <li>የብክነት እና የወጪ ሪፖርቶች</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 1 Footer -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>የሆቴል ሶፍትዌር እና ዘመናዊ AI ቴክኖሎጂዎች ፕሮፖዛል</span>
+                    <span>ገጽ 1 ከ 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 2 ================= -->
+        <div class="page" id="page-2">
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <!-- Section Header -->
+                    <h2 contenteditable="true" class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-200 pb-1">
+                        3. ዘመናዊ AI እና የላቁ ቴክኖሎጂዎች (Advanced AI & Smart Apps)
+                    </h2>
+
+                    <!-- Smart Apps Grid -->
+                    <div class="grid grid-cols-2 gap-3 text-xs mb-6">
+                        
+                        <!-- AI CCTV Card -->
+                        <div class="border-2 border-red-200 rounded-lg p-3 bg-red-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">5. AI Smart Surveillance (CCTV)</h3>
+                                <span class="bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">AI Tech</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>ረጅም የቪዲዮ ሰዓታትን አውቶማቲክ የመተንተን አቅም</li>
+                                <li>አደጋ ወይም ክስተት የተፈጠረበትን ቦታ ቆርጦ ማሳየት</li>
+                                <li>ቪዲዮ ፍለጋ ላይ የሚባክን ጊዜን በ 95% የመቀነስ ችሎታ</li>
+                                <li>የአጠራጣሪ እንቅስቃሴ አውቶማቲክ መልእክት መላኪያ</li>
+                            </ul>
+                        </div>
+
+                        <!-- Cinematic App Card -->
+                        <div class="border-2 border-amber-200 rounded-lg p-3 bg-amber-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">6. Cinematic Studio App</h3>
+                                <span class="bg-amber-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Smart App</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የሆቴሉን ክፍሎች በከፍተኛ ጥራት (Cinematic) ማሳያ</li>
+                                <li>ለሎቢ ስክሪኖች፣ ታብሌት እና ለድረ-ገጽ ማሳያነት የሚሆን</li>
+                                <li>ለ VIP እንግዶች እና ዝግጅቶች (Events) ማስተዋወቂያ</li>
+                                <li>ኢንተራክቲቭ የክፍል እይታ አፕሊኬሽን</li>
+                            </ul>
+                        </div>
+
+                        <!-- AI Marketing Card -->
+                        <div class="border-2 border-purple-200 rounded-lg p-3 bg-purple-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">7. AI Hotel Marketing Automation</h3>
+                                <span class="bg-purple-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Marketing</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የደንበኞች ታሪክ ተንትኖ አውቶማቲክ ማስተዋወቂያ መላክ</li>
+                                <li>የልደት እና ልዩ በዓላት SMS አውቶማቲክ መልእክት</li>
+                                <li>የደንበኞች የታማኝነት ነጥብ (Loyalty Points)</li>
+                                <li>የሆቴሉን ኦንላይን ደረጃ (Reviews) የሚያሳድግ</li>
+                            </ul>
+                        </div>
+
+                        <!-- QR Ordering Card -->
+                        <div class="border-2 border-blue-200 rounded-lg p-3 bg-blue-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">8. QR Digital Menu & Ordering</h3>
+                                <span class="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Digital</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>ደንበኞች በስልካቸው QR ስካን በማድረግ ማዘዝ</li>
+                                <li>ከጠረጴዛ ወይም ከክፍል ሆኖ በቀጥታ የማዘዝ አማራጭ</li>
+                                <li>የወረቀት ሜኑ ወጪን በሙሉ ማስቀረት</li>
+                                <li>ሁለገብ የቋንቋ አማራጮች</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Section: HR & Finance -->
+                    <h2 contenteditable="true" class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">
+                        4. የሰው ሀይል እና የፋይናንስ አስተዳደር (HR & Finance)
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                            <h3 contenteditable="true" class="font-bold text-slate-900 mb-1">9. የሰው ሀይል እና ደሞዝ (HR & Payroll)</h3>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የሰራተኞች መረጃ እና የሰዓት መቆጣጠሪያ (Attendance)</li>
+                                <li>የወር ደሞዝ፣ አበል እና የግብር ስሌት (Payroll)</li>
+                            </ul>
+                        </div>
+                        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                            <h3 contenteditable="true" class="font-bold text-slate-900 mb-1">10. የፋይናንስና ታክስ ሪፖርቶች</h3>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የዕለታዊ፣ ወርሃዊ ገቢ/ወጪ እና የታክስ (VAT) ሪፖርቶች</li>
+                                <li>የሆቴሉ አጠቃላይ የስራ አፈጻጸም ዳሽቦርድ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2 Footer -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>የሆቴል ሶፍትዌር እና ዘመናዊ AI ቴክኖሎጂዎች ፕሮፖዛል</span>
+                    <span>ገጽ 2 ከ 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 3 ================= -->
+        <div class="page" id="page-3">
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <h2 contenteditable="true" class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">
+                        5. የአገልግሎቶች ምርጫ እና የዋጋ ማጠቃለያ (Quotation Table)
+                    </h2>
+                    <p contenteditable="true" class="text-xs text-slate-500 mb-3">
+                        እባክዎን ከታች ካለው ሰንጠረዥ ውስጥ የሚፈልጓቸውን አገልግሎቶች በስተግራ ባለው ሳጥን (☑) ይምረጡ። አጠቃላይ ሂሳቡ በራስ-ሰር ይታሰባል።
+                    </p>
+
+                    <!-- EDITABLE PRICING TABLE -->
+                    <table class="w-full text-left text-xs border-collapse border border-slate-300 mb-4">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
+                                <th class="p-2 border-r border-slate-300 text-center w-10">ምረጥ</th>
+                                <th class="p-2 border-r border-slate-300">የአገልግሎቱ / የሞጁሉ ስም</th>
+                                <th class="p-2 border-r border-slate-300">ዝርዝር መግለጫ</th>
+                                <th class="p-2 text-right w-28">ዋጋ (በብር)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="module-table-body">
+                            <!-- Dynamic Rows inserted via JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-amber-50 font-bold text-slate-900 border-t-2 border-slate-400">
+                                <td colspan="3" class="p-2 text-right border-r border-slate-300">አጠቃላይ ድምር (Total Price):</td>
+                                <td class="p-2 text-right text-amber-700 text-sm" id="grand-total-display">0.00 ብር</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Terms and Notes -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs mb-6">
+                        <h4 contenteditable="true" class="font-bold text-slate-800 mb-1">የውል እና የአሰራር ሁኔታዎች (Terms & Conditions):</h4>
+                        <ol contenteditable="true" class="list-decimal list-inside text-slate-600 space-y-1 text-[11px]">
+                            <li>የተጠቀሱት ዋጋዎች የ 15% ቫት (VAT) አካታች አይደሉም።</li>
+                            <li>ሲስተሙ ተገጥሞ ስልጠና ከተጠናቀቀ በኋላ ለ 1 ዓመት ነጻ የቴክኒክ ድጋፍ እና ጥገና ይኖረዋል።</li>
+                            <li>ክፍያ 50% በቅድሚያ፣ ቀሪው 50% ደግሞ ስራው ተጠናቆ ሲረከቡ የሚፈጸም ይሆናል።</li>
+                        </ol>
+                    </div>
+
+                    <!-- Signatures Section -->
+                    <div class="grid grid-cols-2 gap-8 pt-4 border-t border-dashed border-slate-300 text-xs">
+                        <div>
+                            <strong contenteditable="true" class="block text-slate-800 mb-1">የአቅራቢው ድርጅት ተወካይ፡</strong>
+                            <p contenteditable="true" class="text-slate-500">ስም: ________________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ፊርማ: ______________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ቀን: ________________________</p>
+                        </div>
+                        <div>
+                            <strong contenteditable="true" class="block text-slate-800 mb-1">የሆቴሉ አስተዳደር ተወካይ፡</strong>
+                            <p contenteditable="true" class="text-slate-500">ስም: ________________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ፊርማ: ______________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ቀን: ________________________</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3 Footer -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>የሆቴል ሶፍትዌር እና ዘመናዊ AI ቴክኖሎጂዎች ፕሮፖዛል</span>
+                    <span>ገጽ 3 ከ 3</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JAVASCRIPT FOR DYNAMIC PRICING AND EDITING -->
+    <script>
+        // Initial Default Modules Data
+        const defaultModules = [
+            { id: 1, name: "1. Property Management (PMS)", desc: "የክፍል ምዝገባ፣ Check-in/out እና የጽዳት ቁጥጥር", price: 25000, selected: true },
+            { id: 2, name: "2. Restaurant & Bar POS", desc: "የምግብና መጠጥ ማዘዣ፣ የማእድ ቤት ቲኬት እና የክፍያ ሲስተም", price: 18000, selected: true },
+            { id: 3, name: "3. AI Surveillance Incident Trimmer", desc: "የካሜራ ቪዲዮ አደጋ/ክስተት የተፈጠረበትን ቦታ ቆርጦ ማሳያ AI", price: 28000, selected: false },
+            { id: 4, name: "4. Cinematic Hotel Studio App", desc: "የሆቴሉን ገጽታ እና ክፍሎች በከፍተኛ ጥራት ማሳያ ዲጂታል አፕ", price: 20000, selected: false },
+            { id: 5, name: "5. AI Marketing Automation", desc: "አውቶማቲክ የኤስኤምኤስ/ኢሜይል ማስተዋወቂያ እና ደንበኛ መሳቢያ", price: 16000, selected: false },
+            { id: 6, name: "6. QR Digital Menu & Ordering", desc: "የስልክ QR ኮድ ዲጂታል ሜኑ እና ከጠረጴዛ ማዘዣ ሲስተም", price: 12000, selected: true },
+            { id: 7, name: "7. Channel Manager & Booking Engine", desc: "ከ Booking.com እና ድረ-ገጽ ጋር ማያያዣ ሲስተም", price: 15000, selected: false },
+            { id: 8, name: "8. Inventory & Store Control", desc: "የስቶር፣ የዕቃ ክምችት እና የግዢ ቁጥጥር ሥርዓት", price: 12000, selected: true },
+            { id: 9, name: "9. HR & Payroll System", desc: "የሰራተኞች መቆጣጠሪያ፣ የሰዓት መከታተያ እና የደሞዝ ስሌት", price: 10000, selected: false },
+            { id: 10, name: "10. Installation & Staff Training", desc: "ሲስተሙን መጫን፣ ኔትወርክ ማስተካከል እና ለሰራተኞች ስልጠና", price: 10000, selected: true }
+        ];
+
+        // Render Table Rows
+        function renderTable() {
+            const tbody = document.getElementById('module-table-body');
+            tbody.innerHTML = '';
+
+            defaultModules.forEach((mod, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-200 hover:bg-slate-50 transition';
+                
+                row.innerHTML = `
+                    <td class="p-2 border-r border-slate-200 text-center">
+                        <input type="checkbox" ${mod.selected ? 'checked' : ''} onchange="toggleSelect(${index})" class="checkbox-custom cursor-pointer w-4 h-4 text-amber-600 rounded">
+                    </td>
+                    <td class="p-2 border-r border-slate-200 font-bold text-slate-800" contenteditable="true" onblur="updateName(${index}, this.innerText)">
+                        ${mod.name}
+                    </td>
+                    <td class="p-2 border-r border-slate-200 text-slate-600" contenteditable="true" onblur="updateDesc(${index}, this.innerText)">
+                        ${mod.desc}
+                    </td>
+                    <td class="p-2 text-right font-semibold text-slate-900" contenteditable="true" onblur="updatePrice(${index}, this.innerText)">
+                        ${mod.price.toLocaleString()} ብር
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            calculateTotal();
+        }
+
+        // Toggle Module Selection
+        function toggleSelect(index) {
+            defaultModules[index].selected = !defaultModules[index].selected;
+            calculateTotal();
+        }
+
+        // Update Module Data from Edits
+        function updateName(index, val) {
+            defaultModules[index].name = val.trim();
+        }
+
+        function updateDesc(index, val) {
+            defaultModules[index].desc = val.trim();
+        }
+
+        function updatePrice(index, val) {
+            const parsed = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+            defaultModules[index].price = parsed;
+            calculateTotal();
+        }
+
+        // Calculate Grand Total
+        function calculateTotal() {
+            const total = defaultModules.reduce((sum, mod) => {
+                return mod.selected ? sum + mod.price : sum;
+            }, 0);
+
+            document.getElementById('grand-total-display').innerText = total.toLocaleString() + ' ብር';
+        }
+
+        // Add New Custom Module Row
+        function addCustomModule() {
+            const newId = defaultModules.length + 1;
+            defaultModules.push({
+                id: newId,
+                name: `${newId}. አዲስ አገልግሎት (Custom Service)`,
+                desc: "የአገልግሎቱ ዝርዝር መግለጫ እዚህ ይጻፉ",
+                price: 5000,
+                selected: true
+            });
+            renderTable();
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderTable();
+        };
+    </script>
+</body>
+</html>

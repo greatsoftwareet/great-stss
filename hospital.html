@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>የሆስፒታል እና ክሊኒክ ሶፍትዌር ፕሮፖዛል (Health System Proposal)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: { 800: '#065f46', 900: '#064e3b' },
+                        tealaccent: { 500: '#14b8a6', 600: '#0d9488' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Ethiopic', system-ui, -apple-system, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Printable Paper Setup */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 18mm 18mm 12mm 18mm;
+            margin: 0 auto 20px auto;
+            background: #ffffff;
+            color: #1e293b;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Editable highlight effect */
+        [contenteditable="true"] {
+            outline: 1px dashed transparent;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+            padding: 1px 3px;
+        }
+        
+        .edit-mode [contenteditable="true"]:hover {
+            outline: 1px dashed #0d9488;
+            background-color: #f0fdfa;
+        }
+
+        .edit-mode [contenteditable="true"]:focus {
+            outline: 2px solid #0d9488;
+            background-color: #ffffff;
+        }
+
+        /* Print Specific CSS */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page {
+                box-shadow: none !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                page-break-after: always;
+                break-after: page;
+            }
+            .page:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+            [contenteditable="true"] {
+                outline: none !important;
+                background: transparent !important;
+            }
+            .checkbox-custom {
+                appearance: none;
+                -webkit-appearance: none;
+                border: 1px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen edit-mode pb-12">
+
+    <!-- TOP CONTROL BAR / TOOLBAR (Hidden in Print) -->
+    <header class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-teal-500 text-slate-900 p-2 rounded-lg font-bold">
+                    <i class="fa-solid fa-hospital-user"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-base sm:text-lg">የጤና ተቋማት ሶፍትዌር ፕሮፖዛል አዘጋጅ (HMS Builder)</h1>
+                    <p class="text-xs text-slate-400">ለሆስፒታል፣ ለዴንታል እና ለሜዲየም ክሊኒኮች የተዘጋጀ የዋጋ ማቅረቢያ</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="addCustomModule()" class="bg-slate-800 hover:bg-slate-700 text-teal-400 border border-teal-500/30 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-xs"></i> አዲስ ሞጁል ጨምር
+                </button>
+                <button onclick="calculateTotal()" class="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-500/30 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-xs"></i> ሂሳብ አስላ
+                </button>
+                <button onclick="window.print()" class="bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow-lg shadow-teal-500/20">
+                    <i class="fa-solid fa-file-pdf"></i> ወደ PDF ቀይር / Print
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- FLOATING INFO TOAST -->
+    <div class="no-print max-w-6xl mx-auto my-4 px-4">
+        <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-300 flex items-center justify-between gap-3">
+            <span class="flex items-center gap-2">
+                <i class="fa-solid fa-stethoscope text-teal-400"></i>
+                <strong>ምክር፡</strong> የትኛውንም የህክምና አገልግሎት ዝርዝር ወይም ዋጋ በመጫን ለክሊኒኩ ወይም ለሆስፒታሉ ተስማሚ አድርገው ማስተካከል ይችላሉ።
+            </span>
+            <span class="text-xs text-slate-400 bg-slate-900 px-2 py-1 rounded">A4 Medical Format</span>
+        </div>
+    </div>
+
+    <!-- DOCUMENT PREVIEW CONTAINER -->
+    <main id="proposal-document" class="flex flex-col items-center">
+
+        <!-- ================= PAGE 1 ================= -->
+        <div class="page" id="page-1">
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <!-- Header Banner -->
+                    <div class="bg-emerald-900 text-white p-6 rounded-lg flex justify-between items-center mb-6 border-b-4 border-teal-400">
+                        <div>
+                            <h1 contenteditable="true" class="text-xl font-bold text-teal-300 tracking-wide">የጤና ተቋማት እና ክሊኒክ ሶፍትዌር ፕሮፖዛል</h1>
+                            <p contenteditable="true" class="text-xs text-emerald-100 mt-1">Smart Hospital & Dental/Medium Clinic Management System Proposal</p>
+                        </div>
+                        <div class="text-right border-l border-emerald-700 pl-4">
+                            <span contenteditable="true" class="text-xs text-teal-300 font-semibold block">አቅራቢ ድርጅት</span>
+                            <span contenteditable="true" class="text-sm font-bold">Great SoftwaresTechnology and Software Solution</span>
+                        </div>
+                    </div>
+
+                    <!-- Meta Information Box -->
+                    <div class="grid grid-cols-2 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-lg text-xs mb-6">
+                        <div>
+                            <span class="text-slate-500 block">የተዘጋጀው ለ (Medical Center):</span>
+                            <strong contenteditable="true" class="text-slate-900 text-sm">______________</strong></strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">ቀን (Date):</span>
+                            <strong contenteditable="true" class="text-slate-900 text-sm">____/____/ 20___ ዓ.ም</strong>
+                        </div>
+                         <div>
+                            <span class="text-slate-500 block"> Address( Location ):</span>
+                            <strong contenteditable="true" class="text-slate-900 text-sm" id="current-date">______________________</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">የተቋሙ አይነት (Category):</span>
+                            <strong contenteditable="true" class="text-slate-900">Hospital / Dental Clinic / Medium Clinic</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">የሰነድ ማጣቀሻ (Ref No):</span>
+                            <strong contenteditable="true" class="text-slate-900">HMS-MED-______</strong>
+                        </div>
+                         <div>
+                            <span class="text-slate-500 block">Agent Id (AGN. No):</span>
+                            <strong contenteditable="true" class="text-slate-900">GSTSS__________</strong>
+                        </div>
+                    </div>
+
+                    <!-- Introduction Text -->
+                    <div class="mb-6">
+                        <h2 contenteditable="true" class="text-sm font-bold text-emerald-900 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">1. መግቢያ (Executive Summary)</h2>
+                        <p contenteditable="true" class="text-xs text-slate-600 leading-relaxed">
+                            ይህ የሶፍትዌር ፕሮፖዛል በጤና ተቋምዎ ውስጥ የሚሰጡ የህክምና አገልግሎቶችን ከወረቀት ነጻ (Paperless EMR) ለማድረግ፣ የታካሚዎችን የህክምና ታሪክ በጥራት ለመያዝ፣ የመድኃኒት ቤት እና የላብራቶሪ ቁጥጥርን ለማጠናከር እንዲሁም የፋይናንስ ፍሰቱን በአስተማማኝ ሁኔታ ለመቆጣጠር የተዘጋጀ የላቀ የህክምና ሶፍትዌር ነው።
+                        </p>
+                    </div>
+
+                    <!-- Section: Core Clinic Modules -->
+                    <div>
+                        <h2 contenteditable="true" class="text-sm font-bold text-emerald-900 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">2. ዋና ዋና የህክምና ሶፍትዌር ክፍሎች (Core Modules)</h2>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <!-- Card 1 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">1. የካርድ ክፍል እና ታካሚ መዝገብ (EMR)</h3>
+                                    <span class="bg-teal-100 text-teal-800 text-[10px] font-semibold px-2 py-0.5 rounded">Core</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>የታካሚዎች ዲጂታል ካርድ አወጣጥ እና ታሪክ መያዣ</li>
+                                    <li>የቀጠሮ መያዣ እና የዶክተር ይመደብልኝ ማኔጅመንት</li>
+                                    <li>የታካሚዎችን የህክምና ታሪክ በቀላሉ ፍለጋ (Search)</li>
+                                    <li>የዲጂታል ካርድ ህትመት እና QR ኮድ</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">2. የዶክተሮች እና ምርመራ ክፍል</h3>
+                                    <span class="bg-teal-100 text-teal-800 text-[10px] font-semibold px-2 py-0.5 rounded">Clinical</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>የህክምና ምልክቶችና ውጤቶች መመዝገቢያ (OPD)</li>
+                                    <li>የመድኃኒት ማዘዣ በሶፍትዌር መጻፊያ (e-Prescription)</li>
+                                    <li>የላብራቶሪ እና የሬዲዮሎጂ ትእዛዝ መላኪያ</li>
+                                    <li>የቀደሙ የህክምና ታሪኮች ማሰሻ (History Review)</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">3. የላብራቶሪ እና አልትራሳውንድ (Lab & Radiology)</h3>
+                                    <span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2 py-0.5 rounded">Lab</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>ከዶክተሩ የተላከን የምርመራ ትእዛዝ መቀበያ</li>
+                                    <li>የላብራቶሪ ውጤቶችን መመዝገቢያና ማተሚያ</li>
+                                    <li>ውጤቶችን በቀጥታ ወደ ዶክተሩ ስክሪን መላኪያ</li>
+                                    <li>የመመርመሪያ ኬሚካሎች ክምችት ቁጥጥር</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 4 -->
+                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 contenteditable="true" class="font-bold text-slate-900">4. የመድኃኒት ቤት ቁጥጥር (Pharmacy POS)</h3>
+                                    <span class="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded">Pharma</span>
+                                </div>
+                                <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                    <li>የመድኃኒቶች ሽያጭና የክፍያ ደረሰኝ ማዘጋጀት</li>
+                                    <li>የሚያልፍባቸውን ቀን (Expiry Date) መከታተያ</li>
+                                    <li>የመድኃኒት ክምችት ሲያልቅ የማሳወቂያ ሲስተም</li>
+                                    <li>የባርኮድ (Barcode) ስካነር ድጋፍ</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 1 Footer -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>የጤና ተቋማት እና ክሊኒክ ሶፍትዌር ፕሮፖዛል</span>
+                    <span>ገጽ 1 ከ 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 2 ================= -->
+        <div class="page" id="page-2">
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <!-- Section Header -->
+                    <h2 contenteditable="true" class="text-sm font-bold text-emerald-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-1">
+                        3. የጥርስ ሕክምና (Dental) እና የላቁ የቴክኖሎጂ አፕሊኬሽኖች
+                    </h2>
+
+                    <!-- Dental & Advanced Grid -->
+                    <div class="grid grid-cols-2 gap-3 text-xs mb-6">
+                        
+                        <!-- Dental Module Card -->
+                        <div class="border-2 border-teal-200 rounded-lg p-3 bg-teal-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">5. የጥርስ ሕክምና ልዩ ሞጁል (Dental Charting)</h3>
+                                <span class="bg-teal-700 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Dental</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የጥርስ ካርታ (Interactive 32-Tooth Chart)</li>
+                                <li>የህክምና ደረጃዎች መከታተያ (Dental Treatment Plan)</li>
+                                <li>የX-Ray የቪዲዮ/ፎቶ ምስሎችን ከተካሚው ካርድ ጋር ማያያዝ</li>
+                                <li>የተደረጉ የጥርስ ጥገናዎች እና የዋጋ ስሌት</li>
+                            </ul>
+                        </div>
+
+                        <!-- Patient SMS & Reminder App -->
+                        <div class="border-2 border-blue-200 rounded-lg p-3 bg-blue-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">6. የታካሚዎች SMS Reminder & App</h3>
+                                <span class="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Automation</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የቀጠሮ ቀን ማስታወሻ አውቶማቲክ SMS መላኪያ</li>
+                                <li>የመድኃኒት መውሰጃ ሰዓት ማስታወሻ መልእክት</li>
+                                <li>ኦንላይን ቀጠሮ መያዣ እና የላብራቶሪ ውጤት ማያ አፕ</li>
+                                <li>የክሊኒኩን አገልግሎቶች ማስተዋወቂያ</li>
+                            </ul>
+                        </div>
+
+                        <!-- AI Surveillance & Emergency Trimmer -->
+                        <div class="border-2 border-red-200 rounded-lg p-3 bg-red-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">7. AI Surveillance & Safety Detection</h3>
+                                <span class="bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">AI Tech</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>በአደጋ ክፍል (Emergency) CCTV ቪዲዮዎችን AI ትንተና</li>
+                                <li>አደጋ ወይም ድገተኛ ክስተት ሲፈጠር ቆርጦ ማሳየት</li>
+                                <li>ለደህንነት ሰራተኞች እና ለህክምና ክፍሎች ፈጣን ማሳወቂያ</li>
+                                <li>የህክምና መሳሪያዎች ደህንነት መከታተያ</li>
+                            </ul>
+                        </div>
+
+                        <!-- Insurance Claims & Billing -->
+                        <div class="border-2 border-purple-200 rounded-lg p-3 bg-purple-50/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 contenteditable="true" class="font-bold text-slate-900">8. የሕክምና ኢንሹራንስ (Insurance Billing)</h3>
+                                <span class="bg-purple-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Billing</span>
+                            </div>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የድርጅት እና የኢንሹራንስ ታካሚዎች ሂሳብ መያዣ</li>
+                                <li>የኮፖሬት ደረሰኝ ማዘጋጀት (Insurance Credit Claims)</li>
+                                <li>የክፍያ ቅናሾች እና የካሺር መቆጣጠሪያ</li>
+                                <li>አውቶማቲክ ደረሰኝ ማተሚያ</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Section: HR & Finance -->
+                    <h2 contenteditable="true" class="text-sm font-bold text-emerald-900 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">
+                        4. የፋይናንስ፣ የሰራተኞች እና የስቶር ቁጥጥር (HR & Finance)
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                            <h3 contenteditable="true" class="font-bold text-slate-900 mb-1">9. የሰራተኞች እና የዶክተሮች ክፍያ (HR & Payroll)</h3>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የዶክተሮች እና የነርሶች የመግቢያ ሰዓት መቆጣጠሪያ</li>
+                                <li>የኮሚሽን እና የፐርሰንት ስሌት (Doctor Commission)</li>
+                            </ul>
+                        </div>
+                        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                            <h3 contenteditable="true" class="font-bold text-slate-900 mb-1">10. የፋይናንስ እና የታክስ ሪፖርቶች</h3>
+                            <ul contenteditable="true" class="list-disc list-inside text-slate-600 space-y-1 text-[11px]">
+                                <li>የዕለታዊ ካሺሮች ገቢ ማጠቃለያ እና የባንክ ሂሳብ</li>
+                                <li>የታክስ (VAT/TOT) እና የክሊኒኩ የትርፍ/ከሰራ ሪፖርቶች</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2 Footer -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>የጤና ተቋማት እና ክሊኒክ ሶፍትዌር ፕሮፖዛል</span>
+                    <span>ገጽ 2 ከ 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 3 ================= -->
+        <div class="page" id="page-3">
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <h2 contenteditable="true" class="text-sm font-bold text-emerald-900 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">
+                        5. የአገልግሎቶች ምርጫ እና የዋጋ ማጠቃለያ (Pricing Table)
+                    </h2>
+                    <p contenteditable="true" class="text-xs text-slate-500 mb-3">
+                        እባክዎን ከታች ካለው ሰንጠረዥ ውስጥ ለክሊኒክዎ/ሆስፒታልዎ የሚፈልጓቸውን አገልግሎቶች በስተግራ ባለው ሳጥን (☑) ይምረጡ።
+                    </p>
+
+                    <!-- EDITABLE PRICING TABLE -->
+                    <table class="w-full text-left text-xs border-collapse border border-slate-300 mb-4">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
+                                <th class="p-2 border-r border-slate-300 text-center w-10">ምረጥ</th>
+                                <th class="p-2 border-r border-slate-300">የአገልግሎቱ / የሞጁሉ ስም</th>
+                                <th class="p-2 border-r border-slate-300">ዝርዝር መግለጫ</th>
+                                <th class="p-2 text-right w-28">ዋጋ (በብር)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="module-table-body">
+                            <!-- Dynamic Rows inserted via JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-teal-50 font-bold text-slate-900 border-t-2 border-slate-400">
+                                <td colspan="3" class="p-2 text-right border-r border-slate-300">አጠቃላይ ድምር (Total Price):</td>
+                                <td class="p-2 text-right text-teal-800 text-sm" id="grand-total-display">0.00 ብር</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Terms and Notes -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs mb-6">
+                        <h4 contenteditable="true" class="font-bold text-slate-800 mb-1">የውል እና የጥገና ሁኔታዎች (Terms & Support):</h4>
+                        <ol contenteditable="true" class="list-decimal list-inside text-slate-600 space-y-1 text-[11px]">
+                            <li>የህክምና መረጃዎች ደህንነት (Data Backup & Security) ሙሉ በሙሉ በሲስተሙ የተጠበቀ ነው።</li>
+                            <li>ለዶክተሮች፣ ለነርሶች እና ለካሺሮች የ 1 ሳምንት አጠቃላይ የስልጠና ጊዜ ይሰጣል።</li>
+                            <li>ሲስተሙ ከተገጠመ በኋላ ለ 1 ዓመት የነጻ የቴክኒክ ድጋፍ እና ማሻሻያ (Updates) ያካትታል።</li>
+                        </ol>
+                    </div>
+
+                    <!-- Signatures Section -->
+                    <div class="grid grid-cols-2 gap-8 pt-4 border-t border-dashed border-slate-300 text-xs">
+                        <div>
+                            <strong contenteditable="true" class="block text-slate-800 mb-1">የአቅራቢው ድርጅት ተወካይ፡</strong>
+                            <p contenteditable="true" class="text-slate-500">ስም: ________________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ፊርማ: ______________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ቀን: ________________________</p>
+                        </div>
+                        <div>
+                            <strong contenteditable="true" class="block text-slate-800 mb-1">የጤና ተቋሙ / ክሊኒኩ ተወካይ፡</strong>
+                            <p contenteditable="true" class="text-slate-500">ስም: ________________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ፊርማ: ______________________</p>
+                            <p contenteditable="true" class="text-slate-500 mt-1">ቀን: ________________________</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3 Footer -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>የጤና ተቋማት እና ክሊኒክ ሶፍትዌር ፕሮፖዛል</span>
+                    <span>ገጽ 3 ከ 3</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JAVASCRIPT FOR DYNAMIC PRICING AND EDITING -->
+    <script>
+        // Initial Default Modules Data for Health Systems
+        const defaultModules = [
+            { id: 1, name: "1. Patient Registration & EMR", desc: "የታካሚዎች ዲጂታል ካርድ አወጣጥ እና የካርድ ክፍል ማኔጅመንት", price: 28000, selected: true },
+            { id: 2, name: "2. Doctor Consultation & OPD", desc: "የዶክተሮች ማዘዣ፣ የህክምና ታሪክ መጻፊያ እና e-Prescription", price: 22000, selected: true },
+            { id: 3, name: "3. Laboratory & Radiology System", desc: "የላብራቶሪ ውጤቶች መመዝገቢያና በቀጥታ ለዶክተሩ መላኪያ", price: 18000, selected: true },
+            { id: 4, name: "4. Pharmacy Inventory & POS", desc: "የመድኃኒት ቤት ሽያጭ፣ Expiry Date ቁጥጥር እና ስቶር", price: 20000, selected: true },
+            { id: 5, name: "5. Dental Charting & Treatment", desc: "የጥርስ ቁጥሮች ካርታ፣ የህክምና ደረጃ መከታተያ (ለDental ክሊኒክ)", price: 25000, selected: false },
+            { id: 6, name: "6. Patient SMS Reminders & App", desc: "የቀጠሮ ማስታወሻ SMS አውቶማቲክ መላኪያ እና የኦንላይን ቀጠሮ አፕ", price: 15000, selected: false },
+            { id: 7, name: "7. AI Surveillance Safety System", desc: "በአደጋ ክፍል CCTV ቪዲዮዎችን አደጋ ቆርጦ ማሳያ AI", price: 30000, selected: false },
+            { id: 8, name: "8. Insurance Billing & Corporate", desc: "የሕክምና ኢንሹራንስ እና የድርጅት ታካሚዎች ሂሳብ መቆጣጠሪያ", price: 16000, selected: false },
+            { id: 9, name: "9. Doctor Commission & Payroll", desc: "የዶክተሮች የኮሚሽን ስሌት እና የሰራተኞች ደሞዝ ሲስተም", price: 12000, selected: true },
+            { id: 10, name: "10. Installation, Network & Training", desc: "የሶፍትዌር መጫኛ፣ የኔትወርክ ዝርጋታ እና ለዶክተሮች/ነርሶች ስልጠና", price: 15000, selected: true }
+        ];
+
+        // Render Table Rows
+        function renderTable() {
+            const tbody = document.getElementById('module-table-body');
+            tbody.innerHTML = '';
+
+            defaultModules.forEach((mod, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-200 hover:bg-slate-50 transition';
+                
+                row.innerHTML = `
+                    <td class="p-2 border-r border-slate-200 text-center">
+                        <input type="checkbox" ${mod.selected ? 'checked' : ''} onchange="toggleSelect(${index})" class="checkbox-custom cursor-pointer w-4 h-4 text-teal-600 rounded">
+                    </td>
+                    <td class="p-2 border-r border-slate-200 font-bold text-slate-800" contenteditable="true" onblur="updateName(${index}, this.innerText)">
+                        ${mod.name}
+                    </td>
+                    <td class="p-2 border-r border-slate-200 text-slate-600" contenteditable="true" onblur="updateDesc(${index}, this.innerText)">
+                        ${mod.desc}
+                    </td>
+                    <td class="p-2 text-right font-semibold text-slate-900" contenteditable="true" onblur="updatePrice(${index}, this.innerText)">
+                        ${mod.price.toLocaleString()} ብር
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            calculateTotal();
+        }
+
+        // Toggle Module Selection
+        function toggleSelect(index) {
+            defaultModules[index].selected = !defaultModules[index].selected;
+            calculateTotal();
+        }
+
+        // Update Module Data from Edits
+        function updateName(index, val) {
+            defaultModules[index].name = val.trim();
+        }
+
+        function updateDesc(index, val) {
+            defaultModules[index].desc = val.trim();
+        }
+
+        function updatePrice(index, val) {
+            const parsed = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+            defaultModules[index].price = parsed;
+            calculateTotal();
+        }
+
+        // Calculate Grand Total
+        function calculateTotal() {
+            const total = defaultModules.reduce((sum, mod) => {
+                return mod.selected ? sum + mod.price : sum;
+            }, 0);
+
+            document.getElementById('grand-total-display').innerText = total.toLocaleString() + ' ብር';
+        }
+
+        // Add New Custom Module Row
+        function addCustomModule() {
+            const newId = defaultModules.length + 1;
+            defaultModules.push({
+                id: newId,
+                name: `${newId}. አዲስ የህክምና ሞጁል`,
+                desc: "የአገልግሎቱ ዝርዝር መግለጫ እዚህ ይጻፉ",
+                price: 5000,
+                selected: true
+            });
+            renderTable();
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderTable();
+        };
+    </script>
+</body>
+</html>

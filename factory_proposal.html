@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manufacturing & Workshop ERP Proposal - Great Software Technology</title>
+  <style>
+    :root {
+      --primary: #475569;
+      --primary-dark: #1e293b;
+      --accent: #0ea5e9;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #cbd5e1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+    body { background-color: #f1f5f9; color: var(--text); padding: 20px; line-height: 1.6; }
+    
+    .toolbar {
+      position: sticky; top: 0; z-index: 1000; background: #ffffff; padding: 15px 25px;
+      border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); display: flex;
+      gap: 15px; justify-content: space-between; align-items: center; margin-bottom: 25px;
+      border: 1px solid #e2e8f0;
+    }
+    .btn {
+      background: var(--primary-dark); color: white; border: none; padding: 12px 22px;
+      border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn:hover { background: #0f172a; transform: translateY(-1px); }
+    .btn-secondary { background: #64748b; }
+    .btn-secondary:hover { background: #475569; }
+
+    .proposal-page {
+      background: white; width: 210mm; min-height: 297mm; padding: 25mm 20mm;
+      margin: 0 auto 25px auto; box-shadow: 0 5px 25px rgba(0,0,0,0.08); border-radius: 4px;
+      position: relative;
+    }
+
+    .header {
+      border-bottom: 3px solid var(--primary-dark); padding-bottom: 18px; margin-bottom: 25px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .logo-area h1 { font-size: 22px; color: var(--primary-dark); font-weight: 800; }
+    .logo-area p { color: #0284c7; font-size: 13px; margin-top: 3px; font-weight: 700; letter-spacing: 0.5px; }
+    .doc-info { text-align: right; font-size: 12px; color: #475569; }
+
+    .editable { outline: none; border: 1px dashed transparent; padding: 2px 4px; border-radius: 4px; transition: all 0.2s; }
+    .editable:hover, .editable:focus { border-color: var(--accent); background: #e0f2fe; }
+
+    .intro-box {
+      background: var(--bg); border: 1px solid var(--border); padding: 18px;
+      border-radius: 10px; font-size: 13px; margin-bottom: 25px; color: #0f172a;
+    }
+    
+    h2.section-title {
+      font-size: 15px; color: var(--primary-dark); border-left: 5px solid var(--primary-dark);
+      padding-left: 10px; margin: 25px 0 15px 0; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .module-card {
+      background: #fafafa; border: 1px solid #e2e8f0; border-left: 4px solid var(--primary-dark);
+      border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px;
+    }
+    .module-card h3 { color: var(--primary-dark); font-size: 14px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .module-card p { color: #475569; font-size: 12px; margin-bottom: 6px; }
+    .module-card ul { margin-left: 20px; color: #334155; font-size: 11px; }
+
+    .pricing-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+    .pricing-table th { background: var(--primary-dark); color: white; text-align: left; padding: 12px; font-weight: 600; }
+    .pricing-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    .pricing-table tr:nth-child(even) { background-color: #f8fafc; }
+    
+    .checkbox-col { width: 40px; text-align: center; }
+    .price-col { width: 120px; text-align: right; font-weight: bold; }
+    .price-input { width: 95px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px; padding: 5px; font-weight: bold; }
+
+    .summary-box {
+      margin-top: 30px; background: #e0f2fe; border: 2px solid var(--accent);
+      padding: 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .grand-total { font-size: 20px; font-weight: 800; color: #0369a1; }
+
+    .terms-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; font-size: 11px; margin-top: 25px; color: #475569; }
+    .terms-box h4 { color: var(--primary-dark); margin-bottom: 6px; font-size: 12px; }
+
+    .signature-section {
+      margin-top: 40px; display: flex; justify-content: space-between;
+      padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 12px;
+    }
+    .sig-block { width: 45%; text-align: center; }
+    .sig-line { border-bottom: 1px dashed #94a3b8; height: 45px; margin-bottom: 8px; }
+
+    .page-break { page-break-after: always; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar { display: none; }
+      .proposal-page { box-shadow: none; padding: 15mm 15mm; margin: 0; width: 100%; min-height: auto; }
+      .editable { border: none !important; background: transparent !important; }
+      .price-input { border: none !important; background: transparent !important; width: auto !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div>
+      <strong style="color: var(--primary-dark); font-size: 16px;">Manufacturing ERP Proposal Editor</strong>
+      <span style="font-size: 12px; color: #64748b; margin-left: 10px;">(የፈለጉትን ጽሁፍ ተጭነው ማስተካከል ይችላሉ)</span>
+    </div>
+    <div>
+      <button class="btn btn-secondary" onclick="addModule()">+ አዲስ ሞጁል ጨምር</button>
+      <button class="btn" onclick="window.print()">ወደ PDF ቀይር / Print</button>
+    </div>
+  </div>
+
+  <!-- PAGE 1 -->
+  <div class="proposal-page">
+    <div class="header">
+      <div class="logo-area">
+        <h1 class="editable" contenteditable="true">Great Software Technology and Software Solution</h1>
+        <p class="editable" contenteditable="true">Industrial Manufacturing ERP, Production Costing & Factory Automation</p>
+      </div>
+      <div class="doc-info">
+        <p>ቀን፡ <span class="editable" contenteditable="true">____________________</span></p>
+        <p>ማጣቀሻ፡ <span class="editable" contenteditable="true">GST-MFG-________________</span></p>
+        <p>የቀረበለት፡ <span class="editable" contenteditable="true">___________________________________ (ፋብሪካ / አምራች ድርጅት)</span></p>
+      </div>
+    </div>
+
+    <div class="intro-box editable" contenteditable="true">
+      <strong>ክብሩ አቶ/ወይዘሮ (የፋብሪካው / የአምራች ድርጅቱ አስተዳደር)፡</strong><br>
+      ድርጅታችን **Great Software Technology and Software Solution** የምርት ሂደትዎን፣ የጥሬ ዕቃ ወጪዎችን፣ የማሽነሪዎች ጥገና እና የሰራተኞችን አፈፃፀም በዘመናዊ መንገድ የሚያስተዳድር የላቀ የኢንዱስትሪ ማኑፋክቸሪንግ ERP ሶፍትዌር አዘጋጅቶ ቀርቧል። ይህ ሲስተም የብክነት መጠንን በመቀነስ፣ የጥሬ ዕቃ እጥረትን በማስቀረት እና እውነተኛውን የምርት ወጪ በማስላት ምርታማነትዎን የሚያሳድግ ነው።
+    </div>
+
+    <h2 class="section-title">1. የአገልግሎቶች እና የሞጁሎች ዝርዝር መግለጫ</h2>
+
+    <div class="module-card">
+      <h3>1. Bill of Materials (BOM) & Production Costing <span>(የጥሬ ዕቃ እና የምርት ወጪ ስሌት)</span></h3>
+      <p>ለአንድ ምርት የሚሄዱ ጥሬ ዕቃዎችን እና አጠቃላይ የምርት ወጪን መቆጣጠሪያ።</p>
+      <ul>
+        <li>ለእያንዳንዱ ምርት የሚፈለጉ ጥሬ ዕቃዎችን (Formula / Recipe) በዲጂታል መዘገብ።</li>
+        <li>የጥሬ ዕቃ፣ የሰራተኛ (Direct Labor) እና የኤሌክትሪክ/የፋብሪካ ወጪዎችን በማስላት ትክክለኛውን የምርት ዋጋ መተመን።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>2. Work Orders & Production Scheduling <span>(የስራ ትእዛዝ እና የምርት መርሃ-ግብር)</span></h3>
+      <p>የምርት ትእዛዞችን ማውጣትና የየዕለት የምርት ግቦችን መከታተያ።</p>
+      <ul>
+        <li>የምርት ስራ ትእዛዝ (Work Orders) ማውጣትና ለምርት ክፍሎች ማስተላለፍ።</li>
+        <li>በየፈረቃው (Shift) የታቀደውን እና የተመረተውን ምርት መጠን በሪል-ታይም መከታተል።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>3. Raw Material & Finished Goods Inventory <span>(የጥሬ ዕቃ እና ያለቀለት ምርት መጋዘን)</span></h3>
+      <p>የጥሬ ዕቃዎችን እና ያለቁ ምርቶችን መጋዘን በኔትወርክ መቆጣጠሪያ።</p>
+      <ul>
+        <li>ጥሬ ዕቃ ከመጋዘን ወደ ምርት መስመር ሲወጣ አውቶማቲክ ተቀናሽ ማድረግ።</li>
+        <li>ያለቀላቸው ምርቶች (Finished Goods) ከምርት መስመር ወደ ዋና መጋዘን ሲገቡ በባርኮድ መመዝገብ።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>4. Machine Maintenance & Downtime Tracking <span>(የማሽነሪዎች ጥገና እና እረፍት)</span></h3>
+      <p>የፋብሪካ ማሽኖች ብልሽትን እና የሚባክነውን ሰዓት መቆጣጠሪያ።</p>
+      <ul>
+        <li>የማሽነሪዎች መደበኛ ጥገና (Preventive Maintenance) ቀናትን መቆጣጠር።</li>
+        <li>በማሽኖች ብልሽት ምክንያት የሚባክነውን ሰዓት (Downtime) እና የመለዋወጫ ወጪዎችን መመዝገብ።</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- PAGE 2 -->
+  <div class="proposal-page">
+    <h2 class="section-title">ተጨማሪ እና የላቁ የማኑፋክቸሪንግ ሞጁሎች (የቀጠለ)</h2>
+
+    <div class="module-card">
+      <h3>5. Quality Control & Scrap Management <span>(የጥራት ቁጥጥር እና የብክነት መዝገብ)</span></h3>
+      <p>የምርት ጥራትን የመጠበቅና የተበላሹ ምርቶችን የመቆጣጠሪያ አሰራር።</p>
+      <ul>
+        <li>በምርት ወቅት የሚደረጉ የጥራት ፍተሻዎች (QC Tests) እና መስፈርቶች መዝገብ።</li>
+        <li>የተበላሹ (Defective/Scrap) ምርቶችን መመዝገብና የብክነት ሪፖርት ማዘጋጀት።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>6. Worker Shift, Piece-Rate & Attendance <span>(የሰራተኞች ፈረቃ እና የቁራጭ ክፍያ)</span></h3>
+      <p>የፋብሪካ ሰራተኞችን ሰዓትና ምርታማነት ማስተዳደሪያ።</p>
+      <ul>
+        <li>የሰራተኞች የፈረቃ (Shift) መደደብ እና ባዮሜትሪክ የመግቢያ/መውጫ መቆጣጠሪያ።</li>
+        <li>በምርት ብዛት የሚከፈሉ ክፍያዎችን (Piece-Rate Labor Cost) አውቶማቲክ ማስላት።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>7. AI Factory Floor Surveillance & Safety Trimming <span>(የካሜራ AI እና የደህንነት ቁጥጥር)</span></h3>
+      <p>በፋብሪካው ግቢና በምርት መስመሩ ላይ ያለውን ደህንነት በ AI መቆጣጠር።</p>
+      <ul>
+        <li>በምርት መስመሩ አካባቢ የሚፈጠሩ አደገኛ እንቅስቃሴዎችን ወይም የአደጋ ስጋቶችን AI ተንትኖ ማሳወቅ።</li>
+        <li>የደህንነት አልባሳት (Helmet/Safety Gear) ያልለበሱ ሰራተኞችን በካሜራ ተንትኖ ማሳወቅ።</li>
+      </ul>
+    </div>
+
+    <h2 class="section-title">2. የምርጫ እና የዋጋ ማጠቃለያ ሰንጠረዥ</h2>
+    <p style="font-size: 11px; color: #64748b; margin-bottom: 10px;">እባክዎን ከታች ከተዘረዘሩት ሞጁሎች ውስጥ የሚፈልጉትን በምልክት (☑) ይምረጡ።</p>
+
+    <table class="pricing-table">
+      <thead>
+        <tr>
+          <th class="checkbox-col">ምረጥ</th>
+          <th>የሞጁል ስም እና ዝርዝር</th>
+          <th class="price-col">ዋጋ (ETB)</th>
+        </tr>
+      </thead>
+      <tbody id="moduleRows">
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">1. Bill of Materials (BOM) & Production Costing</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የጥሬ ዕቃ ስሌት፣ የሰራተኛ ወጪ እና የእውነተኛ ዋጋ ማስያዣ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="32000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">2. Work Orders & Production Scheduling</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የስራ ትእዛዝ፣ የፈረቃ ስራዎች እና የምርት መርሃ-ግብር።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="26000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">3. Raw Material & Finished Goods Inventory</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የጥሬ ዕቃና ያለቁ ምርቶች የመጋዘን መቆጣጠሪያ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="24000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">4. Machine Maintenance & Downtime Tracking</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የማሽነሪዎች ጥገና እና የሚባክን ሰዓት መዝገብ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="18000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">5. Quality Control & Scrap Management</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የምርት ጥራት ፍተሻ እና የተበላሹ ምርቶች መዝገብ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="16000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">6. Worker Shift, Piece-Rate & Attendance</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የሰራተኞች ፈረቃ እና በምርት ብዛት የሚከፈል ሂሳብ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="18000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">7. AI Factory Floor Surveillance & Safety</strong>
+            <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">በምርት መስመሩና መጋዘን አካባቢ ያለ የካሜራ AI ደህንነት።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="25000" oninput="calculateTotal()"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="summary-box">
+      <div>
+        <strong style="color: #0369a1; font-size: 14px;">የተመረጡ አገልግሎቶች አጠቃላይ ድምር፡</strong>
+        <p style="font-size: 11px; color: #0284c7;">የሲስተም መጫኛ፣ የፋብሪካ ማኔጀሮች/ኢንጂነሮች ስልጠና እና የ 1 ዓመት ነፃ ድጋፍን ያካተተ።</p>
+      </div>
+      <div class="grand-total" id="grandTotal">0 ETB</div>
+    </div>
+
+    <div class="terms-box">
+      <h4>የግልግሎት ውል እና ዋስትና (Great Software Technology)</h4>
+      <ul>
+        <li><strong>የስልጠና አገልግሎት፡</strong> ለምርት ኃላፊዎች፣ ኢንጂነሮች እና መጋዘን ሹሞች ሙሉ ስልጠና ይሰጣል።</li>
+        <li><strong>የስርዓት ዋስትና፡</strong> ለ 1 ዓመት ነፃ የሶፍትዌር ጥገና እና የቴክኒክ ድጋፍ ይደረጋል።</li>
+        <li><strong>የአከፋፈል ሁኔታ፡</strong> 50% በቅድመ ክፍያ፣ ቀሪው 50% ስራው ተጠናቆ ሲረከብ ይከፈላል።</li>
+      </ul>
+    </div>
+
+    <div class="signature-section">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <p><strong class="editable" contenteditable="true">Great Software Technology</strong></p>
+        <p class="editable" contenteditable="true" style="color: #64748b;">የሽያጭና ቴክኖሎጂ ክፍል</p>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <p><strong class="editable" contenteditable="true">የፋብሪካው / ድርጅቱ አስተዳደር</strong></p>
+        <p class="editable" contenteditable="true" style="color: #64748b;">ፍቃድ የሰጠው ስራ አስኪያጅ</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculateTotal() {
+      let rows = document.querySelectorAll("#moduleRows tr");
+      let total = 0;
+      rows.forEach(row => {
+        let checkbox = row.querySelector("input[type='checkbox']");
+        let priceInput = row.querySelector(".price-input");
+        if (checkbox && checkbox.checked && priceInput) {
+          total += parseFloat(priceInput.value) || 0;
+        }
+      });
+      document.getElementById("grandTotal").innerText = total.toLocaleString('en-US') + " ETB";
+    }
+
+    function addModule() {
+      let tbody = document.getElementById("moduleRows");
+      let tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+        <td>
+          <strong class="editable" contenteditable="true">አዲስ የተጨመረ ሞጁል / አገልግሎት</strong>
+          <p class="editable" contenteditable="true" style="color: #64748b; font-size: 11px;">የአገልግሎቱ ዝርዝር መግለጫ እዚህ ይጻፉ...</p>
+        </td>
+        <td class="price-col"><input type="number" class="price-input" value="5000" oninput="calculateTotal()"></td>
+      `;
+      tbody.appendChild(tr);
+      calculateTotal();
+    }
+
+    window.onload = calculateTotal;
+  </script>
+</body>
+</html>

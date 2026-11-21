@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Great Software - Business Card Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+    body {
+      background-color: #0d1117;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 40px 20px;
+      gap: 25px;
+      box-sizing: border-box;
+      color: #fff;
+    }
+
+    /* Control Panel for Upload & Download */
+    .controls {
+      background: #161b22;
+      padding: 15px 25px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 162, 255, 0.3);
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .upload-btn-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .btn {
+      border: 1px solid #00a2ff;
+      color: #00a2ff;
+      background-color: transparent;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #00a2ff;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 162, 255, 0.4);
+    }
+
+    .upload-btn-wrapper input[type=file] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* Business Card Canvas (Standard 3.5" x 2" Ratio) */
+    .card-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card {
+      width: 420px;
+      height: 240px;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 162, 255, 0.2);
+      background: #0a0e17;
+      color: #ffffff;
+      border: 1px solid rgba(0, 162, 255, 0.3);
+      box-sizing: border-box;
+    }
+
+    /* Code Overlay Background */
+    .code-bg {
+      position: absolute;
+      margin-top: 50px;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: rgb(37, 70, 86);
+      word-break: break-all;
+      line-height: 1.4;
+      padding: 10px;
+      user-select: none;
+      z-index: 1;
+      box-sizing: border-box;
+    }
+
+    /* Floating Programming Languages */
+    .lang-tag {
+
+      position: absolute;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(0, 162, 255, 0.2);
+      z-index: 1;
+      user-select: none;
+    }
+ .lang-tags {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+ }
+    .lang-1 { top: 12px; right: 75px; }
+    .lang-2 { bottom: 15px; left: 15px; }
+    .lang-4 { bottom: 15px; left: 85px; }
+    .lang-5 { bottom: 15px; left: 15px; }
+    .lang-3 { bottom: 50px; right: 20px; }
+
+    /* Card Content */
+    .card-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 22px;
+      box-sizing: border-box;
+    }
+
+    /* FRONT SIDE HEADER & LOGO */
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header .company-name {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .header .company-name span {
+      color: #00a2ff;
+    }
+
+    .header .tagline {
+      font-size: 8.5px;
+      color: #8a99ad;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Logo Holder Style */
+    .logo-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: rgba(0, 162, 255, 0.1);
+      border: 1px solid rgba(0, 162, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-placeholder {
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 15px;
+      color: #00a2ff;
+    }
+
+    /* SERVICES SECTION */
+    .services-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: rgba(0, 162, 255, 0.05);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 2px solid #00a2ff;
+    }
+
+    .service-item {
+      font-size: 9.5px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .service-item span {
+      color: #00a2ff;
+      font-size: 10px;
+    }
+
+    /* CONTACT SECTION */
+    .info-section {
+      font-size: 10.5px;
+      color: #cbd5e1;
+      border-top: 1px solid rgba(0, 162, 255, 0.2);
+      padding-top: 8px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+
+    .info-item span.icon {
+      color: #00a2ff;
+      margin-right: 8px;
+    }
+
+    /* BACK SIDE STYLES */
+    .back-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+    }
+
+    .back-logo-large {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background: rgba(0, 162, 255, 0.1);
+      border: 1.5px solid #00a2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 8px;
+      box-shadow: 0 0 15px rgba(0, 162, 255, 0.3);
+    }
+
+    .back-logo-large img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .back-logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+      margin-bottom: 2px;
+    }
+
+    .back-logo-text span {
+      color: #00a2ff;
+    }
+
+    .back-subtext {
+      font-size: 9px;
+      color: #8a99ad;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CONTROL PANEL -->
+  <div class="controls">
+    <div class="upload-btn-wrapper">
+      <button class="btn">📁 የድርጅትዎን Logo ይምረጡ (Upload Logo)</button>
+      <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(event)">
+    </div>
+  </div>
+
+  <!-- FRONT SIDE CARD -->
+  <div class="card-wrapper">
+    <div class="card" id="frontCard">
+      <div class="code-bg">
+        01000111 01010010 01000101 01000001 01010100 01010011 01001111 01000110 01010100 01010111 01000001 01010010 01000101
+        01100011 01101111 01100100 01100101 01000111 01010010 01000101 01000001 01010100 01010011 01001111 01000110 01010100
+      </div>
+
+      <span class="lang-tag lang-1">&lt;C++&gt;</span>
+      <span class="lang-tag lang-3">JavaScript</span>
+
+      <div class="card-content">
+        <!-- HEADER & LOGO -->
+        <div class="header-container">
+          <div class="header">
+            <h1 class="company-name">GREAT <span>SOFTWARE</span></h1>
+            <div class="tagline">Technology & Software Solutions</div>
+          </div>
+          <div class="logo-box">
+            <span class="logo-placeholder" id="frontLogoText">&lt;/&gt;</span>
+            <img id="frontLogoImg" src="" style="display:none;" alt="Logo">
+          </div>
+        </div>
+
+        <!-- 4 SERVICES -->
+        <div class="services-section">
+        <div class="service-item"><span>></span> Custom Software Dev</div>
+          <div class="service-item"><span>></span> Mobile App Development</div>
+          <div class="service-item"><span>></span> Web Applications</div>
+          <div class="service-item"><span>></span> Cloud & Tech Solutions</div>
+        </div>
+
+        <!-- CONTACT DETAILS -->
+        <div class="info-section">
+          <div class="info-item">
+            <span class="icon">📍</span> Addis Ababa, Ethiopia
+          </div>
+          <div class="info-item">
+            <span class="icon">📞</span> +251 950 294 386 / +251 933455805 / +251 905715616  
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn" onclick="downloadCard('frontCard', 'Great_Software_Front.png')">⬇ Download Front Card (Image)</button>
+  </div>
+
+  <!-- BACK SIDE CARD -->
+  <div class="card-wrapper">
+    <div class="card" id="backCard">
+      <div class="code-bg">
+        01101010 01100001 01110110 01100001 01110011 01100011 01110011 01101001 01110000 01110100 01110000 01111001 01110100
+        01101008 01000111 01010010 01000101 01000001 01010100 01010011 01001111 01000110 01010100 01010111 01000001 01010010
+      </div>
+  <div class="lang-tags">
+
+  
+      <span class="lang-tag lang-2">&lt;Python /&gt;</span><br>
+       <span class="lang-tag lang-4">&lt;JavaScript /&gt;</span>
+</div>
+      <div class="card-content">
+        <div class="back-content">
+          <div class="back-logo-large">
+            <span class="logo-placeholder" id="backLogoText" style="font-size:20px;">&lt;/&gt;</span>
+            <img id="backLogoImg" src="" style="display:none;" alt="Logo">
+          </div>
+          <div class="back-logo-text">GREAT <span>SOFTWARE</span></div>
+          <div class="back-subtext">Building The Future Through Code</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn" onclick="downloadCard('backCard', 'Great_Software_Back.png')">⬇ Download Back Card (Image)</button>
+  </div>
+
+  <script>
+    // 1. Function to handle uploaded logo image
+    function loadLogo(event) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        const frontImg = document.getElementById('frontLogoImg');
+        const backImg = document.getElementById('backLogoImg');
+        
+        frontImg.src = reader.result;
+        backImg.src = reader.result;
+
+        frontImg.style.display = 'block';
+        backImg.style.display = 'block';
+
+        document.getElementById('frontLogoText').style.display = 'none';
+        document.getElementById('backLogoText').style.display = 'none';
+      };
+      if (event.target.files[0]) {
+        reader.readAsDataURL(event.target.files[0]);
+      }
+    }
+
+    // 2. Function to convert HTML Card to PNG Image & Download
+    function downloadCard(cardId, filename) {
+      const cardElement = document.getElementById(cardId);
+      html2canvas(cardElement, {
+        scale: 3, // Higher resolution output
+        backgroundColor: null
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>

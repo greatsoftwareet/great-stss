@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym & Spa Management System Proposal - Great Software Technology</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --accent: #38bdf8;
+      --bg: #f0f9ff;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+      --border: #bae6fd;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+    body { background-color: #f3f4f6; color: var(--text); padding: 20px; line-height: 1.6; }
+    
+    .toolbar {
+      position: sticky; top: 0; z-index: 1000; background: #ffffff; padding: 15px 25px;
+      border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); display: flex;
+      gap: 15px; justify-content: space-between; align-items: center; margin-bottom: 25px;
+      border: 1px solid #e5e7eb;
+    }
+    .btn {
+      background: var(--primary); color: white; border: none; padding: 12px 22px;
+      border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary { background: #4b5563; }
+    .btn-secondary:hover { background: #374151; }
+
+    .proposal-page {
+      background: white; width: 210mm; min-height: 297mm; padding: 25mm 20mm;
+      margin: 0 auto 25px auto; box-shadow: 0 5px 25px rgba(0,0,0,0.08); border-radius: 4px;
+      position: relative;
+    }
+
+    .header {
+      border-bottom: 3px solid var(--primary); padding-bottom: 18px; margin-bottom: 25px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .logo-area h1 { font-size: 22px; color: var(--primary-dark); font-weight: 800; }
+    .logo-area p { color: #0284c7; font-size: 13px; margin-top: 3px; font-weight: 700; letter-spacing: 0.5px; }
+    .doc-info { text-align: right; font-size: 12px; color: #4b5563; }
+
+    .editable { outline: none; border: 1px dashed transparent; padding: 2px 4px; border-radius: 4px; transition: all 0.2s; }
+    .editable:hover, .editable:focus { border-color: var(--primary); background: #e0f2fe; }
+
+    .intro-box {
+      background: var(--bg); border: 1px solid var(--border); padding: 18px;
+      border-radius: 10px; font-size: 13px; margin-bottom: 25px; color: #0c4a6e;
+    }
+    
+    h2.section-title {
+      font-size: 15px; color: var(--primary-dark); border-left: 5px solid var(--primary);
+      padding-left: 10px; margin: 25px 0 15px 0; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .module-card {
+      background: #fafafa; border: 1px solid #e5e7eb; border-left: 4px solid var(--primary);
+      border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px;
+    }
+    .module-card h3 { color: var(--primary-dark); font-size: 14px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .module-card p { color: #4b5563; font-size: 12px; margin-bottom: 6px; }
+    .module-card ul { margin-left: 20px; color: #374151; font-size: 11px; }
+
+    .pricing-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+    .pricing-table th { background: var(--primary-dark); color: white; text-align: left; padding: 12px; font-weight: 600; }
+    .pricing-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+    .pricing-table tr:nth-child(even) { background-color: #f8fafc; }
+    
+    .checkbox-col { width: 40px; text-align: center; }
+    .price-col { width: 120px; text-align: right; font-weight: bold; }
+    .price-input { width: 95px; text-align: right; border: 1px solid #d1d5db; border-radius: 4px; padding: 5px; font-weight: bold; }
+
+    .summary-box {
+      margin-top: 30px; background: #e0f2fe; border: 2px solid var(--accent);
+      padding: 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .grand-total { font-size: 20px; font-weight: 800; color: #0369a1; }
+
+    .terms-box { background: #f9fafb; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; font-size: 11px; margin-top: 25px; color: #4b5563; }
+    .terms-box h4 { color: var(--primary-dark); margin-bottom: 6px; font-size: 12px; }
+
+    .signature-section {
+      margin-top: 40px; display: flex; justify-content: space-between;
+      padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px;
+    }
+    .sig-block { width: 45%; text-align: center; }
+    .sig-line { border-bottom: 1px dashed #9ca3af; height: 45px; margin-bottom: 8px; }
+
+    .page-break { page-break-after: always; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar { display: none; }
+      .proposal-page { box-shadow: none; padding: 15mm 15mm; margin: 0; width: 100%; min-height: auto; }
+      .editable { border: none !important; background: transparent !important; }
+      .price-input { border: none !important; background: transparent !important; width: auto !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div>
+      <strong style="color: var(--primary-dark); font-size: 16px;">Gym & Spa Management Proposal Editor</strong>
+      <span style="font-size: 12px; color: #6b7280; margin-left: 10px;">(የፈለጉትን ጽሁፍ ተጭነው ማስተካከል ይችላሉ)</span>
+    </div>
+    <div>
+      <button class="btn btn-secondary" onclick="addModule()">+ አዲስ ሞጁል ጨምር</button>
+      <button class="btn" onclick="window.print()">ወደ PDF ቀይር / Print</button>
+    </div>
+  </div>
+
+  <!-- PAGE 1 -->
+  <div class="proposal-page">
+    <div class="header">
+      <div class="logo-area">
+        <h1 class="editable" contenteditable="true">Great Software Technology and Software Solution</h1>
+        <p class="editable" contenteditable="true">Smart Gym Membership, Spa Booking & Access Control System</p>
+      </div>
+      <div class="doc-info">
+        <p>ቀን፡ <span class="editable" contenteditable="true">--/---/ 2026 e.c</span></p>
+        <p>Address( Location )፡ <span class="editable" contenteditable="true">____________</span></p>
+        <p>ማጣቀሻ (Ref. No)፡ <span class="editable" contenteditable="true">GST-GYM-________________</span></p>
+        <p>የቀረበለት፡ <span class="editable" contenteditable="true">___________ (ጂም / ስፓ)</span></p>
+        <p>Agent Id (AGN. No)፡ <span class="editable" contenteditable="true">GST-ID__________ </span></p>
+      </div>
+      
+    </div>
+
+    <div class="intro-box editable" contenteditable="true">
+      <strong>ክብሩ አቶ/ወይዘሮ (የጂም/ስፓ ማዕከሉ አስተዳደር)፡</strong><br>
+      ድርጅታችን **Great Software Technology and Software Solution** የጂም፣ የስፓ እና የዌልነስ ማዕከልዎን የአባላት ምዝገባ፣ የክፍያ መቆጣጠሪያ፣ የስፓ ቀጠሮዎችን እና የመግቢያ በሮችን (Access Control Turnstiles) በዘመናዊ መንገድ የሚያስተዳድር የሶፍትዌር ፕሮፖዛል አዘጋጅቶ ቀርቧል። ይህ ሲስተም የአባላትን የአባልነት ጊዜ መቆጣጠር፣ ያልተፈቀዱ ሰዎች እንዳይገቡ መከላከል እና የወርሃዊ ገቢዎችን በጥራት የመመዝገብ አቅም አለው።
+    </div>
+
+    <h2 class="section-title">1. የአገልግሎቶች እና የሞጁሎች ዝርዝር መግለጫ</h2>
+
+    <div class="module-card">
+      <h3>1. Member Registration & Biometric Access Control <span>(የአባላት መዝገብ እና የመግቢያ በር)</span></h3>
+      <p>የአባላትን መረጃ በዲጂታል መያዝ እና የመግቢያ በሮችን በባዮሜትሪክ መቆጣጠሪያ።</p>
+      <ul>
+        <li>የአባላት ፎቶ፣ አድራሻ እና የጤና ታሪክ መዝገብ።</li>
+        <li>የመግቢያ በሮችን (Turnstile Gates) በጣት አሻራ (Fingerprint)፣ RFID ካርድ ወይም QR ኮድ ማስከፈት።</li>
+        <li>የአባልነት ቀኑ ያበቃ አባል ሲመጣ በሩ አውቶማቲክ እንዳይከፈት የማድረግ አቅም።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>2. Membership Packages & Automated Billing <span>(የአባልነት ፓኬጆች እና ክፍያ)</span></h3>
+      <p>የተለያዩ የአባልነት ክፍያዎችን እና የቁጥጥር ስራዎችን ማከናወኛ።</p>
+      <ul>
+        <li>ወርሃዊ፣ የ 3 ወር፣ የ 6 ወር እና የዓመት አባልነቶችን መመዝገብ።</li>
+        <li>የአባልነት ቀናቸው ሊያበቃ 3 ቀን ሲቀረው ለደንበኞች አውቶማቲክ ኤስኤምኤስ (SMS) መላክ።</li>
+        <li>ክፍያዎችን በ telebirr፣ CBE Birr ወይም በካርድ መቀበል እና ደረሰኝ ማተም።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>3. Spa, Sauna & Massage Appointment System <span>(የስፓ እና ሳውና ቀጠሮ ማኔጅመንት)</span></h3>
+      <p>ለስፓ እና ማስጅ አገልግሎቶች የሚሆን የሰዓት እና የክፍሎች ቀጠሮ መያዣ።</p>
+      <ul>
+        <li>የስፓ እና ማስጅ ክፍት ሰዓቶችን (Time Slots) በዲጂታል መያዝ።</li>
+        <li>የቀጠሮ መደራረብን (Overbooking) መከላከል እና የባለሙያዎች (Therapists) መደደብ።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>4. Personal Trainer & Class Management <span>(የአሰልጣኞች እና የክላስ አስተዳደር)</span></h3>
+      <p>የግል አሰልጣኞችን እና የቡድን ስፖርቶችን ማስተዳደሪያ።</p>
+      <ul>
+        <li>የልዩ አሰልጣኞች (Personal Trainers) ክፍያ እና የኮሚሽን ስሌት።</li>
+        <li>የኤሮቢክስ፣ ዮጋ እና ዙምባ ክላስ ሰዓቶችን እና የተሳታፊዎችን ብዛት መቆጣጠር።</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- PAGE 2 -->
+  <div class="proposal-page">
+    <h2 class="section-title">ተጨማሪ እና የላቁ የጂም/ስፓ ሞጁሎች (የቀጠለ)</h2>
+
+    <div class="module-card">
+      <h3>5. Juice Bar & Supplement Store POS <span>(የጁስ ባር እና የሱፕሊመንት POS)</span></h3>
+      <p>በማዕከሉ ውስጥ የሚገኝ የጁስ ባር እና የካፌ/ፕሮቲን ሽያጭ መቆጣጠሪያ።</p>
+      <ul>
+        <li>ለጁስ፣ ፕሮቲን፣ የስፖርት ትጥቅ እና ውሃ ሽያጭ የሚሆን ፈጣን POS።</li>
+        <li>የካፌ እና የትጥቅ ስቶር ክምችት (Inventory) መቆጣጠሪያ።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>6. Member Mobile App & Fitness Tracker <span>(የአባላት የስልክ አፕ)</span></h3>
+      <p>አባላት አገልግሎቶችን እና እድገታቸውን የሚከታተሉበት አፕ።</p>
+      <ul>
+        <li>አባላት የቀረቸውን የአባልነት ቀን እና የቀጠሮ ሰዓት በስልካቸው ማየት።</li>
+        <li>የስፖርት ፕሮግራሞችን እና የክብደት/ውፍረት እድገትን (Fitness Progress) መዝግቦ መያዝ።</li>
+      </ul>
+    </div>
+
+    <div class="module-card">
+      <h3>7. AI Gym Surveillance & Safety Trimming <span>(የካሜራ AI ደህንነት)</span></h3>
+      <p>በጂሙ እና ስፓ አካባቢ ያሉ የደህንነት ካሜራዎችን በ AI መቆጣጠር።</p>
+      <ul>
+        <li>በስፖርት መስሪያዎች አካባቢ የሚፈጠሩ አደጋዎችን ወይም ጉዳቶችን AI ተንትኖ ለደህንነት ክፍሉ ማሳወቅ።</li>
+        <li>ያልተፈቀደ ሰው ወደ ስፓ ወይም ቪአይፒ ክፍሎች ሲገባ ማስታወቂያ መስጠት።</li>
+      </ul>
+    </div>
+
+    <h2 class="section-title">2. የምርጫ እና የዋጋ ማጠቃለያ ሰንጠረዥ</h2>
+    <p style="font-size: 11px; color: #6b7280; margin-bottom: 10px;">እባክዎን ከታች ከተዘረዘሩት ሞጁሎች ውስጥ የሚፈልጉትን በምልክት (☑) ይምረጡ።</p>
+
+    <table class="pricing-table">
+      <thead>
+        <tr>
+          <th class="checkbox-col">ምረጥ</th>
+          <th>የሞጁል ስም እና ዝርዝር</th>
+          <th class="price-col">ዋጋ (ETB)</th>
+        </tr>
+      </thead>
+      <tbody id="moduleRows">
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">1. Member Registration & Biometric Access</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የአባላት መዝገብ እና የጣት አሻራ/የበር መቆጣጠሪያ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="22000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">2. Membership Packages & Automated Billing</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የአባልነት ክፍያዎች፣ ደረሰኝ እና የአውቶማቲክ ኤስኤምኤስ ማስታወሻ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="18000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">3. Spa, Sauna & Massage Appointment System</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የስፓ፣ ሳውና እና ማስጅ ቀጠሮዎች መቆጣጠሪያ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="15000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">4. Personal Trainer & Class Management</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የአሰልጣኞች ኮሚሽን እና የቡድን ክላሶች መቆጣጠሪያ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="12000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">5. Juice Bar & Supplement Store POS</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የጁስ ባር፣ የካፌ እና የስፖርት ትጥቆች POS።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="14000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">6. Member Mobile App & Fitness Tracker</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የአባላት የስልክ አፕ እና የውፍረት/ጡንቻ እድገት መዝገብ።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="16000" oninput="calculateTotal()"></td>
+        </tr>
+        <tr>
+          <td class="checkbox-col"><input type="checkbox" onchange="calculateTotal()"></td>
+          <td>
+            <strong class="editable" contenteditable="true">7. AI Gym Surveillance & Safety Trimming</strong>
+            <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">በጂሙ እና ስፓ አካባቢ ያለ የካሜራ AI ደህንነት።</p>
+          </td>
+          <td class="price-col"><input type="number" class="price-input" value="20000" oninput="calculateTotal()"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="summary-box">
+      <div>
+        <strong style="color: #0369a1; font-size: 14px;">የተመረጡ አገልግሎቶች አጠቃላይ ድምር፡</strong>
+        <p style="font-size: 11px; color: #0284c7;">የሲስተም መጫኛ፣ የሰራተኞች/አሰልጣኞች ስልጠና እና የ 1 ዓመት ነፃ ድጋፍን ያካተተ።</p>
+      </div>
+      <div class="grand-total" id="grandTotal">0 ETB</div>
+    </div>
+
+    <div class="terms-box">
+      <h4>የግልግሎት ውል እና ዋስትና (Great Software Technology)</h4>
+      <ul>
+        <li><strong>የስልጠና አገልግሎት፡</strong> ለጂም አስተዳዳሪዎች፣ ካሺሮች እና አሰልጣኞች ሙሉ ስልጠና ይሰጣል።</li>
+        <li><strong>የስርዓት ዋስትና፡</strong> ለ 1 ዓመት ነፃ የሶፍትዌር ጥገና እና የቴክኒክ ድጋፍ ይደረጋል።</li>
+        <li><strong>የአከፋፈል ሁኔታ፡</strong> 50% በቅድመ ክፍያ፣ ቀሪው 50% ስራው ተጠናቆ ሲረከብ ይከፈላል።</li>
+      </ul>
+    </div>
+
+    <div class="signature-section">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <p><strong class="editable" contenteditable="true">Great Software Technology</strong></p>
+        <p class="editable" contenteditable="true" style="color: #6b7280;">የሽያጭና ቴክኖሎጂ ክፍል</p>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <p><strong class="editable" contenteditable="true">የጂም/ስፓ ማዕከሉ አስተዳደር</strong></p>
+        <p class="editable" contenteditable="true" style="color: #6b7280;">ፍቃድ የሰጠው ስራ አስኪያጅ</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculateTotal() {
+      let rows = document.querySelectorAll("#moduleRows tr");
+      let total = 0;
+      rows.forEach(row => {
+        let checkbox = row.querySelector("input[type='checkbox']");
+        let priceInput = row.querySelector(".price-input");
+        if (checkbox && checkbox.checked && priceInput) {
+          total += parseFloat(priceInput.value) || 0;
+        }
+      });
+      document.getElementById("grandTotal").innerText = total.toLocaleString('en-US') + " ETB";
+    }
+
+    function addModule() {
+      let tbody = document.getElementById("moduleRows");
+      let tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="checkbox-col"><input type="checkbox" checked onchange="calculateTotal()"></td>
+        <td>
+          <strong class="editable" contenteditable="true">አዲስ የተጨመረ ሞጁል / አገልግሎት</strong>
+          <p class="editable" contenteditable="true" style="color: #6b7280; font-size: 11px;">የአገልግሎቱ ዝርዝር መግለጫ እዚህ ይጻፉ...</p>
+        </td>
+        <td class="price-col"><input type="number" class="price-input" value="5000" oninput="calculateTotal()"></td>
+      `;
+      tbody.appendChild(tr);
+      calculateTotal();
+    }
+
+    window.onload = calculateTotal;
+  </script>
+</body>
+</html>

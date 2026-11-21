@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calcule</title>
+    <style>
+        .container{
+            background-color: black;
+            width: 400px;
+            height: 600px;
+             display: flex;
+             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+        .card {
+           background: linear-gradient(135deg, 
+             blue, red, green, yellow, pink, gray, orange);
+            width: 200px;
+            height: 100px;
+            margin: 20px auto;
+            color: blue;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            animation: move 5s ease infinite;
+        }
+        @keyframes move {
+             0% { transform: translateY(100px);}
+             50%{ transform: translateY(0px);
+               background-color: rgb(6, 6, 235);
+               color:#ffffff;
+               scale: 0.5;
+               rotate: 55deg;
+               overflow-anchor: none;
+               opacity: 2;
+            }
+            75%{
+              transform: translateX(45%);
+              background: linear-gradient(135deg, 
+             blue, red, green, yellow, pink, gray, orange);
+            }
+             100%{ transform: translateX(50%);
+                 background: blue;
+                 color:#ffffff;
+                 scale: 0.9;
+                 rotate: -20deg;
+                 }
+               }
+        .card1 {
+            background: linear-gradient(135deg, 
+             blue, red, green, yellow, pink, gray, orange);
+            width: 200px;
+            height: 100px;
+            margin: 20px auto;
+            margin-left: 30px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            animation: movle 5s ease infinite;
+              }
+         @keyframes movle {
+           0% { transform: translateY(100px);}
+           50%{ transform: translateY(0px);
+                background: linear-gradient(135deg, orange,
+             blue, red, green, yellow );
+             border-radius: 50%;
+             scale: 0.5;
+             rotate: 55deg;
+             overflow-anchor: none;
+             opacity: 2;
+              }
+            75%, 100%{ transform: translateX(50%);
+                background: linear-gradient(135deg, orange,
+             blue, rgb(89, 51, 213), rgb(128, 0, 19), rgb(215, 18, 100) );
+                scale: 0.9;
+                rotate: -20deg;
+              }
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">well come to Dire Dawa</div>
+         <div class="card1" id="tex"></div>
+    </div>
+    <script>
+      const inTex = document.getElementById(tex);
+      function tec(){
+        setTimeout()
+      }
+    </script>
+</body>
+</html>
